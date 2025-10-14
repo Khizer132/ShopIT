@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { countries } from 'countries-list'
+import { useDispatch, useSelector } from 'react-redux'
+import { saveShippingInfo } from '../../redux/slice/cartSlice'
+import { useNavigate } from 'react-router-dom'
+import CheckoutSteps from './checkoutSteps'
 
 const Shipping = () => {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const countriesList = Object.values(countries);
     const [address, setAddress] = useState("");
     const [city, setCity] = useState("");
@@ -10,23 +17,35 @@ const Shipping = () => {
     const [postalCode, setPostalCode] = useState("");
     const [country, setCountry] = useState("");
 
+    const {shippingInfo} = useSelector((state) => state.cart);
+
+    useEffect(() => {
+        if(shippingInfo){
+            setAddress(shippingInfo.address);   
+            setCity(shippingInfo.city);
+            setPhoneNo(shippingInfo.phoneNo);
+            setPostalCode(shippingInfo.postalCode);
+            setCountry(shippingInfo.country);
+        }
+    }, [shippingInfo]);
+
     const submitHandler = (e) => {
         e.preventDefault();
         // Add your form submission logic here
-        
+        dispatch(saveShippingInfo({ address, city, phoneNo, postalCode, country }));
+
+        navigate("/confirm_order");
     }
-
-
 
 
     return (
         <>
+        <CheckoutSteps shipping />
             <div className="row wrapper mb-5">
                 <div className="col-10 col-lg-5">
                     <form
                         className="shadow rounded bg-body"
-                        action="your_submit_url_here"
-                        method="post"
+                        onSubmit={submitHandler}
                     >
                         <h2 className="mb-4">Shipping Info</h2>
                         <div className="mb-3">
@@ -112,7 +131,7 @@ const Shipping = () => {
                 </div>
             </div>
 
-        </>
+            </>
 
     )
 }
