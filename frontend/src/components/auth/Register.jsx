@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEffect } from 'react'
-import { useRegisterMutation } from '../redux/api/authApi';
+import { useRegisterMutation } from '../../redux/api/authApi';
 import toast from 'react-hot-toast';
 
 const Register = () => {
