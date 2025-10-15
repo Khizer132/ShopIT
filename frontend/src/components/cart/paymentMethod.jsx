@@ -23,7 +23,7 @@ const PaymentMethod = () => {
 
     useEffect(() => {
         if(isSuccess){
-            navigate("/");
+            navigate("/me/orders?order_success=true");
         }
         if(error){
             toast.error(error?.data?.message || "Something went wrong" );

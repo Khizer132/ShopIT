@@ -14,13 +14,18 @@ export const orderApi = createApi({
             },
             
         }),
+       
         myOrders: builder.query({
             query: (id) => `/me/orders`,
+            
+        }),
+         orderDetails: builder.query({
+            query: (id) => `/orders/${id}`,
             
         }),
     }),
 
 });
 
-export const { useCreateNewOrderMutation, useMyOrderQuery } = orderApi;
+export const { useCreateNewOrderMutation, useMyOrdersQuery, useOrderDetailsQuery } = orderApi;
     
