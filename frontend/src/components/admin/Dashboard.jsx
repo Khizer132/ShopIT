@@ -6,18 +6,25 @@ import "react-datepicker/dist/react-datepicker.css";
 import SalesCharts from '../charts/salesCharts';
 
 const Dashboard = () => {
-  const [selectedDate, setStartDate] = useState(new Date().setDate(1));
+  const [startDate, setStartDate] = useState(new Date().setDate(1));
   const [endDate, setEndDate] = useState(new Date());
+
+
+  const submitHandler = () => {
+    console.log(startDate, endDate);
+
+    // Fetch sales data based on selected dates
+  }
   return (
     <AdminLayout>
       <div className="d-flex justify-content-start align-items-center">
         <div className="mb-3 me-4">
           <label className="form-label d-block">Start Date</label>
           <DatePicker
-            selected={selectedDate}
+            selected={startDate}
             onChange={(date) => setStartDate(date)}
             selectsStart
-            startDate={selectedDate}
+            startDate={startDate}
             endDate={endDate}
             className="form-control"
           />
@@ -28,13 +35,13 @@ const Dashboard = () => {
             selected={endDate}
             onChange={(date) => setEndDate(date)}
             selectsEnd
-            startDate={selectedDate}
+            startDate={startDate}
             endDate={endDate}
-            minDate={selectedDate}
+            minDate={startDate}
             className="form-control"
           />
         </div>
-        <button className="btn fetch-btn ms-4 mt-3 px-5">Fetch</button>
+        <button className="btn fetch-btn ms-4 mt-3 px-5" onClick={submitHandler}>Fetch</button>
       </div>
 
       <div className="row pr-4 my-5">

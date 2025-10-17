@@ -2,6 +2,7 @@ import Order from "../models/order.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import catchAsyncErrors from "../middleware/catchAsyncErrors.js";
 import Product from "../models/product.js";
+import { get } from "http";
 
 
 // Create new Order => POST /api/v1/order/new
@@ -83,17 +84,17 @@ export const updateOrder = catchAsyncErrors(async (req, res, next) => {
 
         // Update stock
         const product = await Product.findById(item.product);
-        if(!product){
+        if (!product) {
             return next(new ErrorHandler("Product not found with this Id", 404));
         }
-        if( product.stock < item.quantity){
+        if (product.stock < item.quantity) {
             return next(new ErrorHandler(`Only ${product.stock} items left in stock for product ${product.name}`, 400));
         }
 
         product.stock -= item.quantity;
         await product.save();
 
-    
+
     });
 
     order.orderStatus = req.body.status;
@@ -119,5 +120,84 @@ export const deleteOrder = catchAsyncErrors(async (req, res, next) => {
     res.status(200).json({
         success: true,
         message: "Order deleted successfully",
+    });
+});
+
+
+async function getSalesDate(startDate, endDate) {
+
+    const salesData = await Order.aggregate([
+        {
+            $match: {
+                createdAt: { $gte: startDate, $lte: endDate }
+            }
+        },
+        {
+            $group: {
+                _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+                sales: { $sum: "$totalPrice" },
+                orderCount: { $sum: 1 }
+            }
+        },
+
+    ]);
+
+    // Map to hold sales data by date
+
+    const salesMap = new Map();
+    let totalSales = 0;
+    let totalOrderCount = 0;
+
+    salesData.forEach(sale => {
+        const date = sale?._id.date;
+        const sales = sale?.sales;
+        const orderCount = sale?.orderCount;
+
+        salesMap.set(date, { sales, orderCount });
+        totalSales += sales;
+        totalOrderCount += orderCount;
+    });
+
+    const datesBetween = await getDatesBetween(startDate, endDate);
+
+    const finalSalesData = datesBetween.map(date => ({
+       date,
+       sales: (salesMap.get(date) || {sales : 0}).sales,
+       orderCount: (salesMap.get(date) || {orderCount : 0}).orderCount,
+
+    }));
+
+    return {salesData: finalSalesData, totalSales, totalOrderCount};
+
+}
+
+// Helper function to get all dates between two dates
+async function getDatesBetween(startDate, endDate) {
+    const dates = [];
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        const formattedDate = currentDate.toISOString().split('T')[0];
+        dates.push(formattedDate);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+}
+
+// get sales => Delete /api/v1/admin/get_sales
+export const getSales = catchAsyncErrors(async (req, res, next) => {
+    const startDate = new Date(req.query.startDate);
+    const endDate = new Date(req.query.endDate);
+
+    startDate.setUTCHours(0, 0, 0, 0);
+    endDate.setUTCHours(23, 59, 59, 999);
+
+    const {salesData, totalSales, totalOrderCount} = await getSalesDate(startDate, endDate);
+
+    res.status(200).json({
+        success: true,
+        totalSales,
+        totalOrderCount,
+        sales: salesData,
+        
     });
 });
