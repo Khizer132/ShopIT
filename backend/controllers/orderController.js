@@ -149,7 +149,7 @@ async function getSalesDate(startDate, endDate) {
     let totalOrderCount = 0;
 
     salesData.forEach(sale => {
-        const date = sale?._id.date;
+        const date = sale?._id;
         const sales = sale?.sales;
         const orderCount = sale?.orderCount;
 

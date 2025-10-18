@@ -25,9 +25,12 @@ export const orderApi = createApi({
         }),
 
         getSalesData: builder.query({
-            query: (startDate, endDate) => `/admin/get_sales/?startDate=${startDate}&endDate=${endDate}`,
-
+            query: ({ startDate, endDate }) =>
+                `/admin/get_sales?startDate=${startDate}&endDate=${endDate}`,
+            refetchOnMountOrArgChange: true,
+            keepUnusedDataFor: 0,
         }),
+
     }),
 
 });

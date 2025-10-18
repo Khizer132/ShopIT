@@ -11,14 +11,25 @@ import Loader from '../layouts/Loader';
 
 
 const Dashboard = () => {
-  const [startDate, setStartDate] = useState(new Date().setDate(1));
+  /*const [startDate, setStartDate] = useState(new Date().setDate(1));
+  const [endDate, setEndDate] = useState(new Date());*/
+
+  const [startDate, setStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(1);
+    return d;
+  });
   const [endDate, setEndDate] = useState(new Date());
 
   const [getSalesData, { error, isLoading, data }] = useLazyGetSalesDataQuery();
 
   useEffect(() => {
+    if (error) {
+      toast.error(error?.data?.message || "Something went wrong");
+    }
+  }, [error]);
 
-
+  /*useEffect(() => {
     if (error) {
       toast.error(error?.data?.message);
     }
@@ -29,16 +40,32 @@ const Dashboard = () => {
         endDate: endDate.toISOString()
       });
     }
-  }, [error]);
+  }, [error, startDate, endDate, data, getSalesData]);*/
 
-  const submitHandler = () => {
+  /*const submitHandler = () => {
     getSalesData({
       startDate: new Date(startDate).toISOString(),
-      endDate: endDate.toISOString()
+      endDate: new Date(endDate).toISOString()
     });
+
+  };*/
+  const submitHandler = async () => {
+    try {
+      await getSalesData({
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      }).unwrap();
+    } catch (err) {
+      toast.error(err?.data?.message || "Failed to fetch sales data");
+    }
+  };
+
+  if (isLoading) {
+    return <Loader />;
   }
 
-  if(isLoading){ return <Loader /> }
+
+
   return (
     <AdminLayout>
       <div className="d-flex justify-content-start align-items-center">
@@ -75,7 +102,7 @@ const Dashboard = () => {
               <div className="text-center card-font-size">
                 Sales
                 <br />
-                <b>$ {data?.totalSales.toFixed(2)}</b>
+                <b>$ {data?.totalSales ? data.totalSales.toFixed(2) : 0}</b>
               </div>
             </div>
           </div>
@@ -94,7 +121,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <SalesCharts salesData={data?.sales} />
+      <SalesCharts salesData={data?.sales || []} />
 
       <div className="mb-5"></div>
     </AdminLayout>

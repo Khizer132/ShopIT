@@ -24,7 +24,8 @@ ChartJS.register(
 
 
 export default function salesCharts({ salesData }) {
-  console.log("Sales Data in Chart:", salesData);
+  console.log("Sales Data:", salesData);
+
   const options = {
     responsive: true,
     interaction: {
@@ -55,7 +56,7 @@ export default function salesCharts({ salesData }) {
     },
   };
 
-  const labels = salesData?.map((data) => data.date);
+  const labels = salesData?.map((data) => data?.date);
 
   const data = {
     labels,
