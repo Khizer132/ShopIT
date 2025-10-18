@@ -12,20 +12,24 @@ export const orderApi = createApi({
                     body,
                 }
             },
-            
+
         }),
-       
+
         myOrders: builder.query({
             query: (id) => `/me/orders`,
-            
+
         }),
-         orderDetails: builder.query({
+        orderDetails: builder.query({
             query: (id) => `/orders/${id}`,
-            
+
+        }),
+
+        getSalesData: builder.query({
+            query: (startDate, endDate) => `/admin/get_sales/?startDate=${startDate}&endDate=${endDate}`,
+
         }),
     }),
 
 });
 
-export const { useCreateNewOrderMutation, useMyOrdersQuery, useOrderDetailsQuery } = orderApi;
-    
+export const { useCreateNewOrderMutation, useMyOrdersQuery, useOrderDetailsQuery, useLazyGetSalesDataQuery } = orderApi;

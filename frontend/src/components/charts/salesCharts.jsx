@@ -21,58 +21,60 @@ ChartJS.register(
   Legend
 );
 
-export const options = {
-  responsive: true,
-  interaction: {
-    mode: 'index',
-    intersect: false,
-  },
-  stacked: false,
-  plugins: {
-    title: {
-      display: true,
-      text: 'Sales and Orders Over Time',
+
+
+export default function salesCharts({ salesData }) {
+  console.log("Sales Data in Chart:", salesData);
+  const options = {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
     },
-  },
-  scales: {
-    y: {
-      type: 'linear',
-      display: true,
-      position: 'left',
-    },
-    y1: {
-      type: 'linear',
-      display: true,
-      position: 'right',
-      grid: {
-        drawOnChartArea: false,
+    stacked: false,
+    plugins: {
+      title: {
+        display: true,
+        text: 'Sales and Orders Over Time',
       },
     },
-  },
-};
-
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
-
-export const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Sales',
-      data: [65,59,80,81,56,55,40, 70, 90],
-      borderColor: 'rgb(255, 99, 132)',
-      backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      yAxisID: 'y',
+    scales: {
+      y: {
+        type: 'linear',
+        display: true,
+        position: 'left',
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        grid: {
+          drawOnChartArea: false,
+        },
+      },
     },
-    {
-      label: 'Orders',
-      data: [12,27,31,39,60,45,70],
-      borderColor: 'rgb(53, 162, 235)',
-      backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      yAxisID: 'y1',
-    },
-  ],
-};
+  };
 
-export default function App() {
+  const labels = salesData?.map((data) => data.date);
+
+  const data = {
+    labels,
+    datasets: [
+      {
+        label: 'Sales',
+        data: salesData?.map((data) => data.sales),
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        yAxisID: 'y',
+      },
+      {
+        label: 'Orders',
+        data: salesData?.map((data) => data.orderCount),
+        borderColor: 'rgb(53, 162, 235)',
+        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        yAxisID: 'y1',
+      },
+    ],
+  };
   return <Line options={options} data={data} />;
 }
