@@ -1,15 +1,17 @@
 import React from 'react'
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PRODUCT_CATEGORIES } from '../constants';
 import { useEffect } from 'react';
-import { useCreateProductMutation } from '../../redux/api/productApi';
+import { useUpdateProductMutation } from '../../redux/api/productApi';
+import { useGetProductDetailsQuery } from '../../redux/api/productApi';
 import toast from 'react-hot-toast';
 
 
-const NewProduct = () => {
+const UpdateProduct = () => {
 
     const navigate = useNavigate();
+    const params = useParams();
 
     const [product, setProduct] = useState({
         name: '',
@@ -20,17 +22,33 @@ const NewProduct = () => {
         seller: '',
     });
 
-    const [createProduct, { isLoading, error, isSuccess }] = useCreateProductMutation();
+    const [updateProduct, { isLoading, error, isSuccess }] = useUpdateProductMutation();
+
+    const {data} = useGetProductDetailsQuery(params?.id);
+
 
     useEffect(() => {
+        // if data for product exist update data
+        if (data?.product) {
+            setProduct({
+                name: data?.product?.name,
+                description: data?.product?.description,
+                price: data?.product?.price,
+                stock: data?.product?.stock,
+                category: data?.product?.category,
+                seller: data?.product?.seller,
+
+            });
+            
+        }
         if (error) {
             toast.error(error?.data?.message);
         }
         if (isSuccess) {
-            toast.success("Product Created Successfully");
+            toast.success("Product Updates Successfully");
             navigate('/admin/products');
         }
-    }, [error, isSuccess, navigate]);
+    }, [error, isSuccess, navigate, data]);
 
     const { name, description, price, stock, category, seller } = product;
 
@@ -40,7 +58,7 @@ const NewProduct = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
-        createProduct(product);
+        updateProduct({id: params?.id, body: product});
     }
 
 
@@ -48,7 +66,7 @@ const NewProduct = () => {
         <div className="row wrapper">
             <div className="col-10 col-lg-10 mt-5 mt-lg-0">
                 <form className="shadow rounded bg-body" onSubmit={submitHandler}>
-                    <h2 className="mb-4">New Product</h2>
+                    <h2 className="mb-4">Update Product</h2>
                     <div className="mb-3">
                         <label for="name_field" className="form-label"> Name </label>
                         <input
@@ -124,7 +142,7 @@ const NewProduct = () => {
                         </div>
                     </div>
                     <button type="submit" className="btn w-100 py-2" disabled={isLoading}>
-                        {isLoading ? "Creating..." : "CREATE"}
+                        {isLoading ? "Updating..." : "Update"}
                     </button>
                 </form>
             </div>
@@ -132,4 +150,4 @@ const NewProduct = () => {
     )
 }
 
-export default NewProduct
+export default UpdateProduct

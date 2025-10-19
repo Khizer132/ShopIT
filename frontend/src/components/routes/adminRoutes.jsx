@@ -4,6 +4,7 @@ import ProtectedRoute from '../auth/ProtectedRoute';
 import Dashboard from '../admin/Dashboard';
 import ListProducts from '../admin/listProducts';
 import NewProduct from '../admin/newProduct';
+import UpdateProduct from '../admin/updateProduct';
 
 
 
@@ -19,6 +20,9 @@ const adminRoutes = () => {
       </ProtectedRoute>} />
       <Route path="/admin/product/new" element={<ProtectedRoute admin={true}>
         <NewProduct />
+      </ProtectedRoute>} />
+      <Route path="/admin/products/:id" element={<ProtectedRoute admin={true}>
+        <UpdateProduct />
       </ProtectedRoute>} />
 
     </>

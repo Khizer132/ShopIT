@@ -53,10 +53,10 @@ const ListProducts = () => {
                 stock: product?.stock,
                 actions: (
                     <>
-                        <Link to={`admin/products/${product._id}`} className="btn btn-outline-primary">
+                        <Link to={`/admin/products/${product._id}`} className="btn btn-outline-primary">
                             <i className="fa fa-pencil"></i>
                         </Link>
-                        <Link to={`admin/products/${product._id}/upload_images`} className="btn btn-outline-success ms-2">
+                        <Link to={`/admin/products/${product._id}/upload_images`} className="btn btn-outline-success ms-2">
                             <i className="fa fa-image"></i>
                         </Link>
                         <button className="btn btn-danger mx-2">
