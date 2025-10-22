@@ -31,8 +31,13 @@ export const orderApi = createApi({
             keepUnusedDataFor: 0,
         }),
 
+        getAdminOrders: builder.query({
+            query: (id) => `/admin/orders`,
+
+        }),
+
     }),
 
 });
 
-export const { useCreateNewOrderMutation, useMyOrdersQuery, useOrderDetailsQuery, useLazyGetSalesDataQuery } = orderApi;
+export const { useCreateNewOrderMutation, useMyOrdersQuery, useOrderDetailsQuery, useLazyGetSalesDataQuery, useGetAdminOrdersQuery } = orderApi;
