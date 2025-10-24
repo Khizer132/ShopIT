@@ -80,29 +80,38 @@ export const updateOrder = catchAsyncErrors(async (req, res, next) => {
     if (order.orderStatus === "Delivered") {
         return next(new ErrorHandler("You have already delivered this order", 400));
     }
-    order.orderItems.forEach(async item => {
 
-        // Update stock
+    // Update stock safely
+    for (const item of order.orderItems) {
         const product = await Product.findById(item.product);
+
         if (!product) {
             return next(new ErrorHandler("Product not found with this Id", 404));
         }
+
         if (product.stock < item.quantity) {
-            return next(new ErrorHandler(`Only ${product.stock} items left in stock for product ${product.name}`, 400));
+            return next(
+                new ErrorHandler(
+                    `Only ${product.stock} items left in stock for product ${product.name}`,
+                    400
+                )
+            );
         }
 
         product.stock -= item.quantity;
-        await product.save();
-
-
-    });
+        await product.save({ validateBeforeSave: false }); // ✅ Skip full validation
+    }
 
     order.orderStatus = req.body.status;
+
     if (req.body.status === "Delivered") {
         order.deliveredAt = Date.now();
     }
 
+    await order.save();
+
     res.status(200).json({
+        success: true,
         order,
     });
 });
@@ -161,13 +170,13 @@ async function getSalesDate(startDate, endDate) {
     const datesBetween = await getDatesBetween(startDate, endDate);
 
     const finalSalesData = datesBetween.map(date => ({
-       date,
-       sales: (salesMap.get(date) || {sales : 0}).sales,
-       orderCount: (salesMap.get(date) || {orderCount : 0}).orderCount,
+        date,
+        sales: (salesMap.get(date) || { sales: 0 }).sales,
+        orderCount: (salesMap.get(date) || { orderCount: 0 }).orderCount,
 
     }));
 
-    return {salesData: finalSalesData, totalSales, totalOrderCount};
+    return { salesData: finalSalesData, totalSales, totalOrderCount };
 
 }
 
@@ -191,13 +200,13 @@ export const getSales = catchAsyncErrors(async (req, res, next) => {
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setUTCHours(23, 59, 59, 999);
 
-    const {salesData, totalSales, totalOrderCount} = await getSalesDate(startDate, endDate);
+    const { salesData, totalSales, totalOrderCount } = await getSalesDate(startDate, endDate);
 
     res.status(200).json({
         success: true,
         totalSales,
         totalOrderCount,
         sales: salesData,
-        
+
     });
 });
