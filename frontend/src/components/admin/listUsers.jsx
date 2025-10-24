@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useGetAdminUsersQuery } from '../../redux/api/userApi';
+import { useGetAdminUsersQuery, useDeleteUserMutation } from '../../redux/api/userApi';
 import toast from 'react-hot-toast';
 import Loader from '../layouts/Loader';
 import { MDBDataTable } from 'mdbreact';
@@ -9,16 +9,24 @@ import AdminLayout from '../layouts/adminLayout';
 const ListUsers = () => {
     const { isLoading, error, data } = useGetAdminUsersQuery();
 
+    const [deleteUser, {error: deleteError, isLoading: isDeleteLoading, isSuccess}] = useDeleteUserMutation();
+
     useEffect(() => {
         if (error) {
             toast.error(error?.data?.message);
         }
+        if(deleteError){
+            toast.error(deleteError?.data?.message);
+        }
+        if(isSuccess){
+            toast.success("User deleted");
+        }
         
-    }, [error]);
+    }, [error, deleteError, isSuccess]);
 
-    /*const deleteuserHandler = (id) => {
-        deleteuser({id});
-    };*/
+    const deleteUserHandler = (id) => {
+        deleteUser({id});
+    };
 
     console.log("Admin Users Data:", data); // Debugging
 
@@ -68,8 +76,8 @@ const ListUsers = () => {
                             <i className="fa fa-pencil"></i>
                         </Link>
                         <button className="btn btn-danger mx-2" 
-                        //onClick={() => deleteUserHandler(user?._id)}
-                            //disabled={isDeleteLoading}
+                        onClick={() => deleteUserHandler(user?._id)}
+                        disabled={isDeleteLoading}
                         >
                             <i className="fa fa-trash"></i>
                         </button>

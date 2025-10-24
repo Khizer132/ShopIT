@@ -4,7 +4,7 @@ import { setIsAuthenticated, setLoading, setUser } from '../slice/userSlice';
 export const userApi = createApi({
     reducerPath: 'userApi',
     baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
-    tagTypes: ["User", "AdminUsers"],
+    tagTypes: ["User", "AdminUsers","AdminUser"],
     endpoints: (builder) => ({
         getMe: builder.query({
             query: () => `/me`,
@@ -22,29 +22,29 @@ export const userApi = createApi({
                 }
             },
             providesTags: ["User"],
-            }),
-        
+        }),
+
 
         updateProfile: builder.mutation({
             query(body) {
-                return{
+                return {
                     url: "/me/update",
                     method: "PUT",
                     body
                 }
-            
+
             },
             invalidatesTags: ["User"],
         }),
 
         updatePassword: builder.mutation({
             query(body) {
-                return{
+                return {
                     url: "/password/update",
                     method: "PUT",
                     body
                 }
-            
+
             },
         }),
 
@@ -75,10 +75,36 @@ export const userApi = createApi({
 
 
         }),
-        
+        getUserDetails: builder.query({
+            query: (id) => `/admin/users/${id}`,
+            providesTags: ['AdminUser'],
+
+
         }),
+        deleteUser: builder.mutation({
+            query({ id }) {
+                return {
+                    url: `/admin/users/${id}`,
+                    method: 'DELETE',
+                }
+            },
+            invalidatesTags: ['AdminUsers'],
+
+        }),
+        updateAdminUser: builder.mutation({
+            query({id, body}) {
+                return{
+                    url: `/admin/users/${id}`,
+                    method: "PUT",
+                    body
+                }
+            
+            },
+            invalidatesTags: ['AdminUsers']
+        })
+
+    }),
 
 });
 
-export const { useGetMeQuery, useUpdateProfileMutation, useUpdatePasswordMutation, /*useForgotPasswordMutation, */ useResetPasswordMutation, useGetAdminUsersQuery } = userApi;
-    
+export const { useGetMeQuery, useUpdateProfileMutation, useUpdatePasswordMutation, /*useForgotPasswordMutation,  useResetPasswordMutation,*/ useGetAdminUsersQuery, useDeleteUserMutation, useGetUserDetailsQuery, useUpdateAdminUserMutation } = userApi;
