@@ -9,6 +9,7 @@ import ListOrders from '../admin/listOrders';
 import ProcessOrders from '../admin/processOrders';
 import ListUsers from '../admin/listUsers';
 import ProcessUsers from '../admin/processUsers';
+import ListReviews from '../admin/listReviews';
 
 
 
@@ -39,6 +40,9 @@ const adminRoutes = () => {
       </ProtectedRoute>} />
       <Route path="/admin/users/:id" element={<ProtectedRoute admin={true}>
         <ProcessUsers />
+      </ProtectedRoute>} />
+      <Route path="/admin/reviews" element={<ProtectedRoute admin={true}>
+        <ListReviews />
       </ProtectedRoute>} />
 
     </>

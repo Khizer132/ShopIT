@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const productApi = createApi({
     reducerPath: 'productApi',
     baseQuery: fetchBaseQuery({ baseUrl: "/api/v1" }),
-    tagTypes: ['Products', 'AdminProducts'],
+    tagTypes: ['Products', 'AdminProducts', 'Reviews'],
     endpoints: (builder) => ({
         getProducts: builder.query({
             query: (params) => ({
@@ -16,7 +16,7 @@ export const productApi = createApi({
                     "price[lte]": params?.max,
                     "ratings[gte]": params?.ratings,
                 }
-                    
+
             }),
         }),
         getProductDetails: builder.query({
@@ -32,14 +32,14 @@ export const productApi = createApi({
                 }
             },
             invalidatesTags: ['Products'],
-            
+
         }),
 
         getAdminProducts: builder.query({
             query: () => `/admin/products`,
             providesTags: ['AdminProducts'],
         }),
-         createProduct: builder.mutation({
+        createProduct: builder.mutation({
             query(body) {
                 return {
                     url: `/admin/products`,
@@ -48,10 +48,10 @@ export const productApi = createApi({
                 }
             },
             invalidatesTags: ['AdminProducts'],
-            
+
         }),
         updateProduct: builder.mutation({
-            query({id, body}) {
+            query({ id, body }) {
                 return {
                     url: `/admin/products/${id}`,
                     method: 'PUT',
@@ -59,12 +59,25 @@ export const productApi = createApi({
                 }
             },
             invalidatesTags: ['Products', 'AdminProducts'],
-            
+
         }),
-        
+        getProductReviews: builder.query({
+            query: (productId) => `/reviews?id=${productId}`,
+            providesTags: ['Reviews'],
+        }),
+
+        deleteProductReview: builder.mutation({
+            query({ productId, id }) {
+                return{
+                    url: `/admin/reviews?productId=${productId}&id=${id}`,
+                    method: 'DELETE',
+                }
+            },
+            invalidatesTags: ['Reviews'],
+        }),
+
     }),
 
 });
 
-export const { useGetProductsQuery, useGetProductDetailsQuery, useNewReviewMutation, useGetAdminProductsQuery, useCreateProductMutation, useUpdateProductMutation } = productApi;
-    
+export const { useGetProductsQuery, useGetProductDetailsQuery, useNewReviewMutation, useGetAdminProductsQuery, useCreateProductMutation, useUpdateProductMutation, useLazyGetProductReviewsQuery, useDeleteProductReviewMutation } = productApi;
