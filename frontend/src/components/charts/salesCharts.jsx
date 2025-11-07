@@ -21,8 +21,6 @@ ChartJS.register(
   Legend
 );
 
-
-
 export default function salesCharts({ salesData }) {
   console.log("Sales Data:", salesData);
 

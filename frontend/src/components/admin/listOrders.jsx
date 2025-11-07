@@ -9,22 +9,22 @@ import AdminLayout from '../layouts/adminLayout';
 const ListOrders = () => {
     const { isLoading, error, data } = useGetAdminOrdersQuery();
 
-    const [deleteOrder, {error: deleteError, isLoading: isDeleteLoading, isSuccess}] = useDeleteOrderMutation();
+    const [deleteOrder, { error: deleteError, isLoading: isDeleteLoading, isSuccess }] = useDeleteOrderMutation();
 
     useEffect(() => {
         if (error) {
             toast.error(error?.data?.message);
         }
-        if(deleteError){
+        if (deleteError) {
             toast.error(deleteError?.data?.message);
         }
-        if(isSuccess){
+        if (isSuccess) {
             toast.success("Order deleted");
         }
     }, [error, deleteError, isSuccess]);
 
     const deleteOrderHandler = (id) => {
-        deleteOrder({id});
+        deleteOrder({ id });
     };
 
     console.log("Admin Orders Data:", data); // Debugging
@@ -68,8 +68,11 @@ const ListOrders = () => {
                         <Link to={`/admin/orders/${order._id}`} className="btn btn-outline-primary">
                             <i className="fa fa-pencil"></i>
                         </Link>
-                        <button className="btn btn-danger mx-2" onClick={() => deleteOrderHandler(order?._id)}
-                            disabled={isDeleteLoading}>
+                        <button
+                            className="btn btn-danger mx-2"
+                            onClick={() => deleteOrderHandler(order?._id)}
+                            disabled={isDeleteLoading}
+                        >
                             <i className="fa fa-trash"></i>
                         </button>
                     </>

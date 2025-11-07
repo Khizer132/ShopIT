@@ -1,126 +1,112 @@
-import React from 'react'
-import { useMyOrdersQuery } from '../../redux/api/orderApi'
+import React, { useEffect } from 'react';
+import { useMyOrdersQuery } from '../../redux/api/orderApi';
 import toast from 'react-hot-toast';
-import { useEffect } from 'react';
 import Loader from '../layouts/Loader';
 import { MDBDataTable } from 'mdbreact';
-import { Link } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { clearCartItems } from '../../redux/slice/cartSlice';
-import { useNavigate } from 'react-router-dom';
 
 const MyOrders = () => {
+    const { isLoading, error, data } = useMyOrdersQuery();
+    const [searchParams] = useSearchParams();
+    const orderSuccess = searchParams.get("order_success");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-  const { isLoading, error, data } = useMyOrdersQuery();
-  const [searchParams] = useSearchParams();
+    // Clear cart items if order is successful
+    useEffect(() => {
+        if (error) {
+            toast.error(error?.data?.message);
+        }
+        if (orderSuccess) {
+            dispatch(clearCartItems());
+            navigate("/me/orders");
+            toast.success("Order placed successfully");
+        }
+    }, [error, orderSuccess, dispatch, navigate]);
 
-  const orderSuccess = searchParams.get("order_success");
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+    // Prepare data for MDBDataTable
+    const setOrders = () => {
+        console.log("My Orders Data:", data);
+        console.log("Orders Array:", data?.order); // Debugging
 
-// Clear cart items if order is successful
-  useEffect(() => {
+        const tableData = {
+            columns: [
+                {
+                    label: 'Order ID',
+                    field: 'id',
+                    sort: 'asc',
+                },
+                {
+                    label: 'Amount',
+                    field: 'amount',
+                    sort: 'asc',
+                },
+                {
+                    label: 'Payment Status',
+                    field: 'status',
+                    sort: 'asc',
+                },
+                {
+                    label: 'Order Status',
+                    field: 'orderStatus',
+                    sort: 'asc',
+                },
+                {
+                    label: 'Actions',
+                    field: 'actions',
+                    sort: 'asc',
+                },
+            ],
+            rows: [],
+        };
 
-    if (error) {
-      toast.error(error?.data?.message);
-    }
-    if (orderSuccess) {
-      dispatch(clearCartItems());
-      navigate("/me/orders");
-      toast.success("Order placed successfully");
-    }
+        data?.order?.forEach((order) => {
+            tableData.rows.push({
+                id: order._id,
+                amount: `$${order.totalPrice}`,
+                status: order.paymentInfo?.status || "N/A",
+                orderStatus: order.orderStatus,
+                actions: (
+                    <>
+                        <Link to={`me/orders/${order._id}`} className="btn btn-primary">
+                            <i className="fa fa-eye"></i>
+                        </Link>
+                        <Link to={`/invoice/orders/${order._id}`} className="btn btn-success mx-2">
+                            <i className="fa fa-print"></i> Generate Invoice
+                        </Link>
+                    </>
+                ),
+            });
+        });
 
-  }, [error, orderSuccess]);
+        console.log("Table Data:", tableData); // Debugging
 
-  // Prepare data for MDBDataTable
-  const setOrders = () => {
-    const data = {
-      columns: [
-        {
-          label: 'Order ID',
-          field: 'id',
-          sort: 'asc'
-        },
-
-        {
-          label: 'Amount',
-          field: 'amount',
-          sort: 'asc'
-        },
-        {
-          label: 'Payment Status',
-          field: 'status',
-          sort: 'asc'
-        },
-        {
-          label: 'Order Status',
-          field: 'orderStatus',
-          sort: 'asc'
-        },
-        {
-          label: 'Actions',
-          field: 'actions',
-          sort: 'asc'
-        },
-      ],
-      rows: []
+        return tableData;
     };
-    
-// Populate rows with order data
-    data?.orders?.forEach((order) => {
-      order.rows.push({
-        id: order._id,
-        amount: `$${order.totalPrice}`,
-        status: order.paymentInfo.status,
-        orderStatus: order.orderStatus,
-        actions: (
-          <>
-            <Link to={`me/orders/${order._id}`} className="btn btn-primary">
-              <i className="fa fa-eye"></i>
-            </Link>
-            <Link to={`invoice/order/${order._id}`} className="btn btn-success mx-2">
-              <i className="fa fa-print"></i>
-            </Link>
-          </>
-        )
 
-      })}
+    if (isLoading) return <Loader />;
+
+    return (
+        <>
+            <div>
+                {data?.order?.length > 0 ? (
+                    <h3 className="mt-5">{data.order.length} Orders</h3>
+                ) : (
+                    <p>No orders found</p>
+                )}
+
+                <MDBDataTable
+                    data={setOrders()}
+                    className="px-3"
+                    bordered
+                    striped
+                    hover
+                />
+            </div>
+        </>
     );
+};
 
-    return data;
-  };
-
-
-
-
-  if (isLoading) return <Loader />;
-
-
-
-  return (
-    <>
-      <div>
-        {data?.orders ? (
-          <h3 className="mt-5">{data.orders.length}</h3>
-        ) : (
-          <p>No orders found</p>
-        )}
-
-        <MDBDataTable
-          data={setOrders()}
-          className="px-3"
-          bordered
-          striped
-          hover
-        />
-
-
-      </div>
-
-    </>
-
-  )
-}
-
-export default MyOrders
+export default MyOrders;

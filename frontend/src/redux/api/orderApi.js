@@ -15,9 +15,8 @@ export const orderApi = createApi({
             },
 
         }),
-
         myOrders: builder.query({
-            query: (id) => `/me/orders`,
+            query: () => `/me/orders`,
 
         }),
         orderDetails: builder.query({
@@ -34,10 +33,8 @@ export const orderApi = createApi({
         }),
 
         getAdminOrders: builder.query({
-            query: (id) => `/admin/orders`,
+            query: () => `/admin/orders`,
             providesTags: ['AdminOrders'],
-
-
         }),
 
         updateOrder: builder.mutation({
